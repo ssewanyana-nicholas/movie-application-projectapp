@@ -137,16 +137,18 @@ function showMovieDetails(movie) {
 
 // Initiate payment through MTN MoMo API
 async function initiatePayment(movie) {
-    const msisdn = prompt('Enter your MTN Mobile Number:');
-    if (!msisdn) {
-        alert('Mobile number is required!');
+    const msisdn = prompt('Enter your MTN Mobile Number (e.g., +256XXXXXXXXX):');
+    if (!validatePhoneNumber(msisdn)) {
+        alert('Invalid phone number format! Please use a valid MTN number.');
         return;
     }
 
+    const reference = `${movie.title}_${Date.now()}`;
     const body = {
         login_hint: `ID:${msisdn}/MSISDN`,
         scope: 'payment',
         access_type: 'online',
+        reference: reference,
     };
 
     try {
@@ -175,10 +177,15 @@ async function initiatePayment(movie) {
     }
 }
 
+// Validate phone number format (MTN)
+function validatePhoneNumber(msisdn) {
+    const regex = /^(?:\+256|07)[0-9]{8}$/;
+    return regex.test(msisdn);
+}
 
-// Generate invoice
+// Generate PDF invoice
 function generateInvoice(movie, msisdn) {
-    const invoice = `
+    const invoiceContent = `
         ============================
         MOVIE BOOKING INVOICE
         ============================
@@ -190,18 +197,20 @@ function generateInvoice(movie, msisdn) {
         Thank you for booking with us!
     `;
 
-    console.log(invoice);
-    alert(invoice);
-    allowMovieAccess(movie);
+    const doc = new jsPDF();
+    doc.text(invoiceContent, 10, 10);
+    doc.save(`${movie.title}_Invoice.pdf`);
+
+    // Optionally: You can send the invoice via email or SMS here
+    // Just add the integration once ready
 }
 
 // Allow user to stream or download movie
 function allowMovieAccess(movie) {
-    const options = `
-        Payment successful! You can now:
+    const options = `Payment successful! You can now:
         1. Stream the movie.
-        2. Download the movie.
-    `;
+        2. Download the movie.`;
+
     alert(options);
 
     // Redirect to streaming or download page
