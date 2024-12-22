@@ -137,57 +137,43 @@ function showMovieDetails(movie) {
 
 // Initiate payment through MTN MoMo API
 async function initiatePayment(movie) {
-    const msisdn = prompt('Enter your MTN Mobile Number (e.g., +256XXXXXXXXX):');
-    if (!validatePhoneNumber(msisdn)) {
-        alert('Invalid phone number format! Please use a valid MTN number.');
+    const msisdn = prompt('Enter your MTN Mobile Number:');
+    if (!msisdn) {
+        alert('Mobile number is required!');
         return;
     }
 
-    const reference = `${movie.title}_${Date.now()}`;
-    const body = {
-        login_hint: `ID:${msisdn}/MSISDN`,
-        scope: 'payment',
-        access_type: 'online',
-        reference: reference,
-    };
+    const body = `login_hint=ID:${msisdn}/MSISDN&scope=payment&access_type=online`;
 
     try {
         const response = await fetch('https://sandbox.momodeveloper.mtn.com/collection/v1_0/bc-authorize', {
             method: 'POST',
-            body: JSON.stringify(body),
+            body: body,
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
                 'Cache-Control': 'no-cache',
                 'Ocp-Apim-Subscription-Key': 'df8b55ab5e7f4fbfac41502e9ef66e56',
+                'X-Target-Environment': 'sandbox', // Specify the sandbox environment
+                'X-Callback-Url': 'https://ssewanyana-nicholas.github.io/movie-application-projectapp/', // Your callback URL
             },
         });
 
-        const result = await response.json();
+        const result = await response.text(); // Read the response as text
         if (response.status === 200) {
             console.log('Payment Response:', result);
             alert('Payment successful!');
+            generateInvoice(movie, msisdn);
         } else {
             console.error('Payment failed:', result);
-            alert(`Payment failed: ${result.message || 'Unknown error'}`);
+            alert('Payment failed. Please verify details and try again.');
         }
     } catch (error) {
         console.error('Payment error:', error);
         alert('Payment request failed. Please check your network or API configuration.');
     }
-
 }
 
-// Validate phone number format (MTN)
-function validatePhoneNumber(msisdn) {
-    // Remove any spaces or extra characters from the input
-    msisdn = msisdn.trim();
-
-    // Check for valid MTN format: +256XXXXXXXX or 07XXXXXXXX (Uganda)
-    const regex = /^(?:\+256|07)[0-9]{8}$/;
-    return regex.test(msisdn);
-}
-
-// Generate PDF invoice
+// Generate invoice as PDF
 function generateInvoice(movie, msisdn) {
     const invoiceContent = `
         ============================
@@ -201,20 +187,24 @@ function generateInvoice(movie, msisdn) {
         Thank you for booking with us!
     `;
 
+    console.log(invoiceContent);
+    alert(invoiceContent);
+
+    // Convert the invoice content to a downloadable PDF
     const doc = new jsPDF();
     doc.text(invoiceContent, 10, 10);
-    doc.save(`${movie.title}_Invoice.pdf`);
+    doc.save(`Invoice_${movie.title}_${Date.now()}.pdf`);
 
-    // Optionally: You can send the invoice via email or SMS here
-    // Just add the integration once ready
+    allowMovieAccess(movie);
 }
 
 // Allow user to stream or download movie
 function allowMovieAccess(movie) {
-    const options = `Payment successful! You can now:
+    const options = `
+        Payment successful! You can now:
         1. Stream the movie.
-        2. Download the movie.`;
-
+        2. Download the movie.
+    `;
     alert(options);
 
     // Redirect to streaming or download page
