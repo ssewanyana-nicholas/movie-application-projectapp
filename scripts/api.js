@@ -179,6 +179,10 @@ async function initiatePayment(movie) {
 
 // Validate phone number format (MTN)
 function validatePhoneNumber(msisdn) {
+    // Remove any spaces or extra characters from the input
+    msisdn = msisdn.trim();
+
+    // Check for valid MTN format: +256XXXXXXXX or 07XXXXXXXX (Uganda)
     const regex = /^(?:\+256|07)[0-9]{8}$/;
     return regex.test(msisdn);
 }
