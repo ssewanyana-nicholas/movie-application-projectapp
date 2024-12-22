@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore, discover, and manage movies with a personalized user interface.">
+    <meta name="author" content="Nicholas Ssewanyana">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Movie App">
+    <meta property="og:description"
+        content="Discover your favorite movies, explore new releases, and keep track of your watchlist.">
+    <meta name="twitter:title" content="Movie App">
+    <meta name="twitter:description" content="Explore and discover movies on Movie App.">
+    <link rel="stylesheet" href="styles/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <title>Movie App</title>
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo">
+            <img src="images/movielogo.jpg" alt="movie logo">
+        </div>
+        <div class="search-bar">
+            <label for="searchInput" class="sr-only">Search Movies</label>
+            <input type="text" id="searchInput" placeholder="What are you looking for?" aria-label="Search for movies">
+            <button class="search-button" aria-label="Search movies">🔍</button>
+        </div>
+    </header>
+
+    <main class="maingrid">
+        <div class="menu">
+            <button id="gridView" aria-label="Switch to Grid View">⏹️ Grid</button>
+            <button id="listView" aria-label="Switch to List View">📄 List</button>
+        </div>
+        <hr>
+        <section class="hero">
+            <h1>Movie App</h1>
+            <p>Discover your favorite movies tailored to your preferences with personalized recommendations, watchlists,
+                and more.</p>
+        </section>
+        <div class="movies-container" role="region">
+            <!-- Movies will be dynamically added here -->
+        </div>
+    </main>
+
+    <footer>
+        <p id="copyright">&copy; 2024 Movie App by Nicholas Ssewanyana</p>
+    </footer>
+
+    <script src="scripts/api.js"></script>
+</body>
+
+</html>
