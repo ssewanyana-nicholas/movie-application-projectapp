@@ -158,7 +158,7 @@ async function initiatePayment(movie) {
             headers: {
                 'Content-Type': 'application/json',
                 'Cache-Control': 'no-cache',
-                'Ocp-Apim-Subscription-Key': 'df8b55ab5e7f4fbfac41502e9ef66e56', // Replace with correct key
+                'Ocp-Apim-Subscription-Key': 'df8b55ab5e7f4fbfac41502e9ef66e56',
             },
         });
 
@@ -166,15 +166,15 @@ async function initiatePayment(movie) {
         if (response.status === 200) {
             console.log('Payment Response:', result);
             alert('Payment successful!');
-            generateInvoice(movie, msisdn);
         } else {
             console.error('Payment failed:', result);
-            alert('Payment failed. Please verify details and try again.');
+            alert(`Payment failed: ${result.message || 'Unknown error'}`);
         }
     } catch (error) {
         console.error('Payment error:', error);
         alert('Payment request failed. Please check your network or API configuration.');
     }
+
 }
 
 // Validate phone number format (MTN)
