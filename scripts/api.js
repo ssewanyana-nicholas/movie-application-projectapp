@@ -1,4 +1,8 @@
 const apiKey = '41e23e1524b7cb3d0c1b15b816308624';
+const subscriptionKey = 'df8b55ab5e7f4fbfac41502e9ef66e56';
+const callbackUrl = 'http://localhost:3000/';
+const targetEnvironment = 'sandbox';
+
 const url = `https://api.themoviedb.org/3/movie/top_rated?api_key=${apiKey}&language=en-US&page=1`;
 
 const gridViewButton = document.getElementById('gridView');
@@ -29,12 +33,14 @@ async function fetchMovies(query = '') {
         : url;
 
     try {
+        console.log('Fetching movies from:', fetchUrl);
         const response = await fetch(fetchUrl);
         if (!response.ok) {
             throw new Error('Failed to fetch movie data.');
         }
 
         const data = await response.json();
+        console.log('Fetched movies data:', data);
         moviesData = data.results;
         displayMovies(moviesData);
     } catch (error) {
@@ -90,6 +96,7 @@ function displayError(error) {
     moviesContainer.innerHTML = `<p style="color: red;">${error.message}</p>`;
 }
 
+// Show movie details
 function showMovieDetails(movie) {
     const modal = document.createElement('div');
     modal.className = 'movie-modal';
@@ -120,22 +127,16 @@ function showMovieDetails(movie) {
     poster.className = 'movie-poster-modal';
 
     const paymentButton = document.createElement('button');
-    paymentButton.textContent = 'Pay to Book Movie';
+    paymentButton.textContent = 'Pay UGX 100 to Book Movie';
     paymentButton.className = 'payment-button';
     paymentButton.addEventListener('click', () => initiatePayment(movie));
 
-    modalContent.appendChild(closeButton);
-    modalContent.appendChild(poster);
-    modalContent.appendChild(movieTitle);
-    modalContent.appendChild(movieDescription);
-    modalContent.appendChild(movieYear);
-    modalContent.appendChild(movieRating);
-    modalContent.appendChild(paymentButton);
+    modalContent.append(closeButton, poster, movieTitle, movieDescription, movieYear, movieRating, paymentButton);
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
 }
 
-// Initiate payment through MTN MoMo API
+// Initiate payment
 async function initiatePayment(movie) {
     const msisdn = prompt('Enter your MTN Mobile Number:');
     if (!msisdn) {
@@ -143,37 +144,65 @@ async function initiatePayment(movie) {
         return;
     }
 
-    const body = `login_hint=ID:${msisdn}/MSISDN&scope=payment&access_type=online`;
+    const requestId = crypto.randomUUID();
 
     try {
-        const response = await fetch('https://sandbox.momodeveloper.mtn.com/collection/v1_0/bc-authorize', {
+        const response = await fetch('https://sandbox.momodeveloper.mtn.com/collection/v2_0/requesttopay', {
             method: 'POST',
-            body: body,
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Cache-Control': 'no-cache',
-                'Ocp-Apim-Subscription-Key': 'df8b55ab5e7f4fbfac41502e9ef66e56',
-                'X-Target-Environment': 'sandbox', // Specify the sandbox environment
-                'X-Callback-Url': 'https://ssewanyana-nicholas.github.io/movie-application-projectapp/', // Your callback URL
+                'Content-Type': 'application/json',
+                'Ocp-Apim-Subscription-Key': subscriptionKey,
+                'X-Reference-Id': requestId,
+                'X-Target-Environment': targetEnvironment,
+                'X-Callback-Url': callbackUrl,
+                'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`
             },
+            body: JSON.stringify({
+                amount: '100',
+                currency: 'UGX',
+                externalId: requestId,
+                payer: { partyIdType: 'MSISDN', partyId: msisdn },
+                payerMessage: `Payment for ${movie.title}`,
+                payeeNote: `Movie Booking`
+            })
         });
 
-        const result = await response.text(); // Read the response as text
-        if (response.status === 200) {
-            console.log('Payment Response:', result);
-            alert('Payment successful!');
-            generateInvoice(movie, msisdn);
+        const result = await response.json();
+        if (response.ok) {
+            alert('Payment request sent!');
+            checkPaymentStatus(requestId, movie, msisdn);
         } else {
-            console.error('Payment failed:', result);
-            alert('Payment failed. Please verify details and try again.');
+            alert('Payment failed. Please try again.');
         }
     } catch (error) {
-        console.error('Payment error:', error);
-        alert('Payment request failed. Please check your network or API configuration.');
+        alert('Error processing payment.');
     }
 }
 
-// Generate invoice as PDF
+// Check payment status
+async function checkPaymentStatus(requestId, movie, msisdn) {
+    try {
+        const response = await fetch(`https://sandbox.momodeveloper.mtn.com/collection/v2_0/requesttopay/${requestId}`, {
+            headers: {
+                'Ocp-Apim-Subscription-Key': subscriptionKey,
+                'X-Target-Environment': targetEnvironment,
+                'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`
+            }
+        });
+
+        const result = await response.json();
+        if (result.status === 'SUCCESSFUL') {
+            alert('Payment successful!');
+            generateInvoice(movie, msisdn);
+        } else {
+            alert('Payment still pending...');
+        }
+    } catch (error) {
+        alert('Error checking payment status.');
+    }
+}
+
+// Generate invoice
 function generateInvoice(movie, msisdn) {
     const invoiceContent = `
         ============================
@@ -182,7 +211,7 @@ function generateInvoice(movie, msisdn) {
         Movie: ${movie.title}
         Date: ${new Date().toLocaleDateString()}
         Mobile Number: ${msisdn}
-        Amount Paid: UGX 10,000
+        Amount Paid: UGX 100
         ============================
         Thank you for booking with us!
     `;
@@ -190,7 +219,6 @@ function generateInvoice(movie, msisdn) {
     console.log(invoiceContent);
     alert(invoiceContent);
 
-    // Convert the invoice content to a downloadable PDF
     const doc = new jsPDF();
     doc.text(invoiceContent, 10, 10);
     doc.save(`Invoice_${movie.title}_${Date.now()}.pdf`);
@@ -198,18 +226,11 @@ function generateInvoice(movie, msisdn) {
     allowMovieAccess(movie);
 }
 
-// Allow user to stream or download movie
+// Allow movie access
 function allowMovieAccess(movie) {
-    const options = `
-        Payment successful! You can now:
-        1. Stream the movie.
-        2. Download the movie.
-    `;
-    alert(options);
-
-    // Redirect to streaming or download page
+    alert('Payment successful! You can now stream or download the movie.');
     window.location.href = `https://www.themoviedb.org/movie/${movie.id}`;
 }
 
-// Initial fetch for top rated movies
+// Fetch movies on load
 fetchMovies();
