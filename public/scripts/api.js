@@ -1,7 +1,4 @@
-const apiKey = '41e23e1524b7cb3d0c1b15b816308624';
-const subscriptionKey = 'df8b55ab5e7f4fbfac41502e9ef66e56';
-const callbackUrl = 'http://localhost:3000/';
-const targetEnvironment = 'sandbox';
+const apiKey = window.env.API_KEY;
 
 const url = `https://api.themoviedb.org/3/movie/top_rated?api_key=${apiKey}&language=en-US&page=1`;
 
@@ -127,7 +124,7 @@ function showMovieDetails(movie) {
     poster.className = 'movie-poster-modal';
 
     const paymentButton = document.createElement('button');
-    paymentButton.textContent = 'Pay UGX 100 to Book Movie';
+    paymentButton.textContent = 'Pay UGX 100 to watch';
     paymentButton.className = 'payment-button';
     paymentButton.addEventListener('click', () => initiatePayment(movie));
 
@@ -138,36 +135,36 @@ function showMovieDetails(movie) {
 
 // Initiate payment
 async function initiatePayment(movie) {
-    const msisdn = prompt('Enter your MTN Mobile Number:');
+    let msisdn = prompt('Enter your MTN Mobile Number (e.g., 077XXXXXXX or 078XXXXXXX):');
     if (!msisdn) {
         alert('Mobile number is required!');
+        return;
+    }
+
+    // Validate that the number starts with 077 or 078
+    if (!msisdn.startsWith('077') && !msisdn.startsWith('078')) {
+        alert('Please enter a valid MTN Uganda mobile number starting with 077 or 078.');
         return;
     }
 
     const requestId = crypto.randomUUID();
 
     try {
-        const response = await fetch('https://sandbox.momodeveloper.mtn.com/collection/v2_0/requesttopay', {
+        console.log('Initiating payment with requestId:', requestId);
+        const response = await fetch('/api/movies/requesttopay', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Ocp-Apim-Subscription-Key': subscriptionKey,
-                'X-Reference-Id': requestId,
-                'X-Target-Environment': targetEnvironment,
-                'X-Callback-Url': callbackUrl,
-                'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                amount: '100',
-                currency: 'UGX',
-                externalId: requestId,
-                payer: { partyIdType: 'MSISDN', partyId: msisdn },
-                payerMessage: `Payment for ${movie.title}`,
-                payeeNote: `Movie Booking`
+                requestId,
+                msisdn,
+                movieTitle: movie.title
             })
         });
 
         const result = await response.json();
+        console.log('Payment response:', result);
         if (response.ok) {
             alert('Payment request sent!');
             checkPaymentStatus(requestId, movie, msisdn);
@@ -175,6 +172,7 @@ async function initiatePayment(movie) {
             alert('Payment failed. Please try again.');
         }
     } catch (error) {
+        console.error('Error processing payment:', error);
         alert('Error processing payment.');
     }
 }
@@ -182,15 +180,15 @@ async function initiatePayment(movie) {
 // Check payment status
 async function checkPaymentStatus(requestId, movie, msisdn) {
     try {
-        const response = await fetch(`https://sandbox.momodeveloper.mtn.com/collection/v2_0/requesttopay/${requestId}`, {
+        console.log('Checking payment status for requestId:', requestId);
+        const response = await fetch(`/api/movies/requesttopay/${requestId}`, {
             headers: {
-                'Ocp-Apim-Subscription-Key': subscriptionKey,
-                'X-Target-Environment': targetEnvironment,
-                'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`
+                'Content-Type': 'application/json'
             }
         });
 
         const result = await response.json();
+        console.log('Payment status response:', result);
         if (result.status === 'SUCCESSFUL') {
             alert('Payment successful!');
             generateInvoice(movie, msisdn);
@@ -198,6 +196,7 @@ async function checkPaymentStatus(requestId, movie, msisdn) {
             alert('Payment still pending...');
         }
     } catch (error) {
+        console.error('Error checking payment status:', error);
         alert('Error checking payment status.');
     }
 }
