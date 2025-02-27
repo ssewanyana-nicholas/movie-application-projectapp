@@ -1,7 +1,3 @@
-const apiKey = window.env.API_KEY;
-
-const url = `https://api.themoviedb.org/3/movie/top_rated?api_key=${apiKey}&language=en-US&page=1`;
-
 const gridViewButton = document.getElementById('gridView');
 const listViewButton = document.getElementById('listView');
 const searchInput = document.getElementById('searchInput');
@@ -26,8 +22,8 @@ listViewButton.addEventListener('click', () => {
 async function fetchMovies(query = '') {
     showLoading(true);
     const fetchUrl = query
-        ? `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${query}&language=en-US&page=1`
-        : url;
+        ? `/api/tmdb/search?query=${query}`
+        : '/api/tmdb/top-rated';
 
     try {
         console.log('Fetching movies from:', fetchUrl);
