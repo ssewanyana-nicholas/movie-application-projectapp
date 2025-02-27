@@ -135,15 +135,15 @@ function showMovieDetails(movie) {
 
 // Initiate payment
 async function initiatePayment(movie) {
-    let msisdn = prompt('Enter your MTN Mobile Number (e.g., 077XXXXXXX or 078XXXXXXX):');
+    let msisdn = prompt('Enter your MTN Mobile Number (e.g., 077XXXXXXX, 078XXXXXXX, or 076XXXXXXX):');
     if (!msisdn) {
         alert('Mobile number is required!');
         return;
     }
 
-    // Validate that the number starts with 077 or 078
-    if (!msisdn.startsWith('077') && !msisdn.startsWith('078')) {
-        alert('Please enter a valid MTN Uganda mobile number starting with 077 or 078.');
+    // Validate that the number starts with 077, 078, or 076
+    if (!msisdn.startsWith('077') && !msisdn.startsWith('078') && !msisdn.startsWith('076')) {
+        alert('Please enter a valid MTN Uganda mobile number starting with 077, 078, or 076.');
         return;
     }
 
