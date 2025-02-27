@@ -1,20 +1,67 @@
 {
-  "name": "Movie Application",
-  "short_name": "MovieApp",
-  "start_url": "/index.html",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "name": "Moviebuy",
+  "theme_color": "#780467",
+  "background_color": "#e20e0e",
+  "short_name": "Moviebuy",
+  "description": "MovieBuy App – Description\n\nOverview:\nMovieBuy is a convenient and user-friendly mobile and web application that allows users to browse, purchase, and book movie tickets for theaters near them. The app provides a seamless experience for movie enthusiasts, offering real-time showtimes, seat selection, and digital ticketing.\n\nKey Features:\n\nMovie Listings &amp; Showtimes – Browse upcoming and currently showing movies with detailed information, including trailers, synopses, cast, and reviews.\nOnline Ticket Booking – Securely purchase tickets and select preferred seats directly within the app.\nTheater Locator – Find nearby cinemas based on location, with filters for amenities like IMAX, 3D, and VIP seating.\nSecure Payment Options – Pay easily via mobile money, credit/debit cards, or digital wallets.\nE-Tickets &amp; QR Codes – Receive digital tickets with QR codes for hassle-free entry.\nPersonalized Recommendations – Get movie suggestions based on viewing history and preferences.\nUser Reviews &amp; Ratings – Read and share movie reviews with the community.\nExclusive Discounts &amp; Offers – Access promotional deals, loyalty rewards, and discounts on ticket bookings.\nTarget Audience:\n\nMovie lovers looking for a quick and easy way to book tickets.\nFamilies and friends planning group movie outings.\nFrequent moviegoers seeking loyalty rewards and discounts."
   "icons": [
     {
-      "src": "/icons/icon-192x192.png",
+      "src": "\icons\movie_icon.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/icons/icon-512x512.png",
-      "sizes": "512x512",
+      "src": "\icons\movie_icon2.png",
+      "sizes": "512x512",{
+      "name": "The name of your application",
+      "short_name": "This name will show in your Windows taskbar, in the start menu, and Android homescreen",
+      "start_url": "The URL that should be loaded when your application is opened",
+      "display": "standalone",
+      "description": "A description for your application",
+      "lang": " The default language of your application",
+      "dir": "auto",
+      "theme_color": "#000000",
+      "background_color": "#000000",
+      "orientation": "any",
+      "icons": [
+        {
+          "src": "https://www.pwabuilder.com/assets/icons/icon_512.png",
+          "sizes": "512x512",
+          "type": "image/png",
+          "purpose": "maskable"
+        },
+        {
+          "src": "https://www.pwabuilder.com/assets/icons/icon_192.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "any"
+        }
+      ],
+      "screenshots": [
+        {
+          "src": "https://www.pwabuilder.com/assets/screenshots/screen1.png",
+          "sizes": "2880x1800",
+          "type": "image/png",
+          "description": "A screenshot of the home page"
+        }
+      ],
+      "related_applications": [
+        {
+          "platform":"windows",
+          "url": " The URL to your app in that app store"
+        }
+      ],
+      "prefer_related_applications": false,
+      "shortcuts": [
+        {
+          "name":"The name you would like to be displayed for your shortcut",
+          "url":"The url you would like to open when the user chooses this shortcut. This must be a URL local to your PWA. For example: If my start_url is /, this URL must be something like /shortcut",
+          "description":"A description of the functionality of this shortcut"
+        }
+      ]
+      }
       "type": "image/png"
     }
   ]
+
 }
