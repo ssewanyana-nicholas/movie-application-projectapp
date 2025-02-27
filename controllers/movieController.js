@@ -34,7 +34,6 @@ const generateApiUser = async () => {
     try {
         await axios(config);
         apiUser = requestId;
-        console.log('API User generated:', apiUser);
     } catch (error) {
         console.error('Error generating API User:', error.response ? error.response.data : error.message);
     }
@@ -52,7 +51,6 @@ const generateApiKeySecret = async () => {
     try {
         const response = await axios(config);
         apiKeySecret = response.data.apiKey;
-        console.log('API Key Secret generated:', apiKeySecret);
     } catch (error) {
         console.error('Error generating API Key Secret:', error.response ? error.response.data : error.message);
     }
@@ -78,7 +76,6 @@ const generateAccessToken = async () => {
     try {
         const response = await axios(config);
         accessToken = response.data.access_token;
-        console.log('Access token generated:', accessToken);
     } catch (error) {
         console.error('Error generating access token:', error.response ? error.response.data : error.message);
     }
