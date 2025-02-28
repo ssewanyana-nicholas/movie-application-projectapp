@@ -129,6 +129,12 @@ function showMovieDetails(movie) {
     document.body.appendChild(modal);
 }
 
+// Event listener for search input
+searchInput.addEventListener('input', (event) => {
+    const query = event.target.value;
+    fetchMovies(query); // Fetch movies based on the search query
+});
+
 // Initiate payment
 async function initiatePayment(movie) {
     let msisdn = prompt('Enter your MTN Mobile Number (e.g., 077XXXXXXX, 078XXXXXXX, or 076XXXXXXX):');
